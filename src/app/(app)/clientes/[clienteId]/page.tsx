@@ -46,7 +46,15 @@ export default async function ClienteDetallePage({
         ← Todos los clientes
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-800">{cliente.nombre}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-800">{cliente.nombre}</h1>
+        <Link
+          href={`/clientes/${cliente.id}/ficha`}
+          className="text-base font-medium text-blue-700"
+        >
+          Ver ficha completa →
+        </Link>
+      </div>
 
       <div>
         <h2 className="mb-3 text-lg font-semibold text-slate-700">Trabajos</h2>
