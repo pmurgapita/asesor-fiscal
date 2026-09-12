@@ -25,6 +25,9 @@ export function TopBar({
           <Link href="/tareas" className="text-base font-medium text-blue-700">
             Tareas
           </Link>
+          <Link href="/procedimientos" className="text-base font-medium text-blue-700">
+            Procedimientos
+          </Link>
           <Link href="/mis-tiempos" className="text-base font-medium text-blue-700">
             Mis tiempos
           </Link>
