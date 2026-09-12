@@ -43,9 +43,17 @@ export default async function TrabajoDetallePage({
         ← {trabajo.cliente.nombre}
       </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">{trabajo.titulo}</h1>
-        <p className="text-lg text-slate-500">{trabajo.cliente.nombre}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{trabajo.titulo}</h1>
+          <p className="text-lg text-slate-500">{trabajo.cliente.nombre}</p>
+        </div>
+        <Link
+          href={`/clientes/${clienteId}/trabajos/${trabajo.id}/detalles`}
+          className="text-base font-medium text-blue-700"
+        >
+          Detalles y gastos →
+        </Link>
       </div>
 
       {registroGuardado && registroGuardado.trabajoId === trabajo.id && (

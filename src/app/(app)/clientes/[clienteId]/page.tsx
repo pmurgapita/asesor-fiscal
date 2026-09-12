@@ -57,7 +57,15 @@ export default async function ClienteDetallePage({
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold text-slate-700">Trabajos</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-700">Trabajos</h2>
+          <Link
+            href={`/clientes/${cliente.id}/trabajos/nuevo`}
+            className="text-base font-medium text-blue-700"
+          >
+            + Nuevo trabajo
+          </Link>
+        </div>
         {trabajos.length === 0 ? (
           <p className="text-lg text-slate-500">Este cliente todavía no tiene trabajos.</p>
         ) : (

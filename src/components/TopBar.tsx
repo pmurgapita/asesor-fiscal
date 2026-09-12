@@ -22,6 +22,9 @@ export function TopBar({
           Gestión del despacho
         </Link>
         <div className="flex items-center gap-4">
+          <Link href="/trabajos" className="text-base font-medium text-blue-700">
+            Trabajos
+          </Link>
           <Link href="/tareas" className="text-base font-medium text-blue-700">
             Tareas
           </Link>
