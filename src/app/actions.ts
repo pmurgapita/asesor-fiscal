@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { requireUser, verifyPassword } from "@/lib/auth";
 import { tarifaEfectiva, calcularImporte } from "@/lib/tiempo";
+import { getTarifaDespachoVigente } from "@/lib/timer";
 
 export async function loginAction(_prevState: unknown, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -60,7 +61,8 @@ export async function iniciarCronometroAction(trabajoId: string) {
     include: { cliente: true },
   });
 
-  const tarifa = tarifaEfectiva(usuario, trabajo.cliente);
+  const tarifaDespacho = await getTarifaDespachoVigente();
+  const tarifa = tarifaEfectiva(trabajo.cliente, tarifaDespacho.importeHora);
   const ahora = new Date();
 
   await prisma.registroTiempo.create({

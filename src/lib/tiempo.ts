@@ -6,14 +6,14 @@ function toNumber(value: Decimalish): number {
   return typeof value === "object" ? value.toNumber() : Number(value);
 }
 
-/** La tarifa especial del cliente gana sobre la tarifa por defecto del trabajador. */
+/** La tarifa especial del cliente gana sobre la tarifa general vigente del despacho. */
 export function tarifaEfectiva(
-  usuario: { tarifaHoraDefecto: Decimalish },
-  cliente: { tarifaHoraEspecial: Decimalish | null }
+  cliente: { tarifaHoraEspecial: Decimalish | null },
+  tarifaDespachoVigente: Decimalish
 ): number {
   return cliente.tarifaHoraEspecial != null
     ? toNumber(cliente.tarifaHoraEspecial)
-    : toNumber(usuario.tarifaHoraDefecto);
+    : toNumber(tarifaDespachoVigente);
 }
 
 export function calcularImporte(duracionMinutos: number, tarifaHora: number): number {

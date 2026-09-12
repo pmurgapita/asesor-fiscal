@@ -19,7 +19,6 @@ async function main() {
       email: "admin@despacho.test",
       passwordHash,
       rol: "ADMIN",
-      tarifaHoraDefecto: 40,
     },
   });
 
@@ -31,7 +30,6 @@ async function main() {
       email: "maria@despacho.test",
       passwordHash,
       rol: "TRABAJADOR",
-      tarifaHoraDefecto: 35,
     },
   });
 
@@ -43,9 +41,22 @@ async function main() {
       email: "javier@despacho.test",
       passwordHash,
       rol: "TRABAJADOR",
-      tarifaHoraDefecto: 35,
     },
   });
+
+  // ---------- Tarifa del despacho ----------
+  // Histórico ficticio de la tarifa/hora general del despacho: los trabajos
+  // ya cerrados conservan la tarifa vigente cuando se hicieron.
+  const yaHayTarifas = (await prisma.tarifaDespacho.count()) > 0;
+  if (!yaHayTarifas) {
+    await prisma.tarifaDespacho.createMany({
+      data: [
+        { importeHora: 70, vigenteDesde: new Date("2020-01-01") },
+        { importeHora: 80, vigenteDesde: new Date("2023-01-01") },
+        { importeHora: 90, vigenteDesde: new Date("2025-01-01") },
+      ],
+    });
+  }
 
   // ---------- Categorías ----------
   const [catParticular, catAutonomo, catPyme] = await Promise.all([

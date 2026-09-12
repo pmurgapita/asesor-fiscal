@@ -25,9 +25,6 @@ model Usuario {
   passwordHash      String
   rol               Rol      @default(TRABAJADOR)
   activo            Boolean  @default(true)
-  // Tarifa/hora por defecto de este trabajador. Un cliente puede tener una
-  // tarifa especial (Cliente.tarifaHoraEspecial) que sobreescribe esta.
-  tarifaHoraDefecto Decimal  @db.Decimal(10, 2)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -66,7 +63,7 @@ model Cliente {
   regimenMatrimonial   String?
 
   // Tarifa/hora especial de este cliente. Si está informada, sobreescribe
-  // la tarifa por defecto del trabajador para los trabajos de este cliente.
+  // la tarifa general del despacho para los trabajos de este cliente.
   tarifaHoraEspecial   Decimal?     @db.Decimal(10, 2)
 
   // Datos de facturación
@@ -185,6 +182,22 @@ model Gasto {
 
 // ---------- Tiempo y facturación ----------
 
+// Tarifa/hora general del despacho, con historial: al despacho le ha ido
+// subiendo el precio/hora a lo largo de los años, y los trabajos ya
+// cerrados no deben verse afectados por una subida posterior (por eso el
+// importe se "congela" en RegistroTiempo.tarifaAplicada en el momento de
+// guardar). Un cliente con tarifaHoraEspecial sigue teniendo prioridad
+// sobre esta tarifa general.
+model TarifaDespacho {
+  id            String   @id @default(cuid())
+  importeHora   Decimal  @db.Decimal(10, 2)
+  vigenteDesde  DateTime
+  notas         String?
+  createdAt     DateTime @default(now())
+
+  @@index([vigenteDesde])
+}
+
 enum EstadoCobro {
   PENDIENTE
   FACTURADO
@@ -231,16 +244,24 @@ model RegistroTiempo {
 
 // ---------- Tareas pendientes ----------
 
-enum Urgencia {
-  BAJA
-  MEDIA
+// Vocabulario tomado del Excel real del despacho: la prioridad tiene 5
+// niveles y el estado indica de quién depende el siguiente paso, no solo
+// si está hecha o no.
+enum Prioridad {
+  INMEDIATA
   ALTA
+  MEDIA
+  BAJA
+  NINGUNA
 }
 
 enum EstadoTarea {
-  PENDIENTE
+  PDTE_INICIAR
   EN_CURSO
-  HECHA
+  PDTE_CLIENTE
+  PDTE_OTROS
+  PDTE_COBRO
+  TERMINADA
 }
 
 model TareaPendiente {
@@ -251,9 +272,9 @@ model TareaPendiente {
   usuarioAsignadoId String
   usuarioAsignado   Usuario @relation(fields: [usuarioAsignadoId], references: [id])
 
-  urgencia    Urgencia    @default(MEDIA)
+  prioridad   Prioridad   @default(MEDIA)
   fechaLimite DateTime?
-  estado      EstadoTarea @default(PENDIENTE)
+  estado      EstadoTarea @default(PDTE_INICIAR)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
