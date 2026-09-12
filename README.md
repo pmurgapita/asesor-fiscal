@@ -33,7 +33,22 @@ Aplicación interna de gestión para un despacho de asesoría fiscal. Ver
 
 ## Estado actual
 
-Fase 2 completada: flujo núcleo (cliente → trabajo → cronómetro → guardado
-del tiempo), con corrección manual de registros. El resto de módulos
-(fichas completas de cliente, gestión de trabajos, tareas pendientes,
-procedimientos tributarios) se añadirán en fases posteriores.
+Completado hasta la Fase 3:
+
+- **Flujo núcleo**: cliente → trabajo → cronómetro → guardado del tiempo,
+  con corrección manual de registros.
+- **Ficha completa de cliente**: alta, edición, familiares y empresas
+  asociadas.
+- **Tareas pendientes**: listado filtrable por prioridad y trabajador,
+  cambio rápido de estado, alta y edición.
+- **Procedimientos tributarios**: varios plazos/hitos por procedimiento,
+  con aviso visual cuando se acerca o vence un plazo.
+- **Trabajos y gastos**: alta/edición de trabajos con categoría y
+  trabajadores asignados, gastos/suplidos por trabajo, y listado global
+  filtrable por cliente/estado/trabajador.
+
+Pendiente (fuera del alcance original, anotado durante el desarrollo):
+"igualas" (clientes con cuota fija mensual), tareas recurrentes internas
+del despacho, y presupuestos a clientes. Tampoco se ha implementado
+todavía: exportación a Excel/CSV, ni los campos de Prevención de Blanqueo
+de Capitales (el modelo ya está preparado para añadirlos sin romper nada).
