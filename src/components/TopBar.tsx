@@ -10,9 +10,11 @@ type CronometroActivo = {
 
 export function TopBar({
   nombreUsuario,
+  esAdmin,
   cronometroActivo,
 }: {
   nombreUsuario: string;
+  esAdmin: boolean;
   cronometroActivo: CronometroActivo;
 }) {
   return (
@@ -34,6 +36,11 @@ export function TopBar({
           <Link href="/mis-tiempos" className="text-base font-medium text-blue-700">
             Mis tiempos
           </Link>
+          {esAdmin && (
+            <Link href="/usuarios" className="text-base font-medium text-blue-700">
+              Usuarios
+            </Link>
+          )}
           <span className="text-base text-slate-600">{nombreUsuario}</span>
           <form action={logoutAction}>
             <button type="submit" className="btn-secondary px-4 py-2 text-base">

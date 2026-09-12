@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { BuscadorClientes } from "@/components/BuscadorClientes";
+import { EnlaceExportarCsv } from "@/components/EnlaceExportarCsv";
 
 export default async function ClientesPage() {
   const clientes = await prisma.cliente.findMany({
@@ -17,6 +18,7 @@ export default async function ClientesPage() {
           + Nuevo cliente
         </Link>
       </div>
+      <EnlaceExportarCsv href="/api/exportar/clientes" />
       <BuscadorClientes
         clientes={clientes.map((c) => ({
           id: c.id,

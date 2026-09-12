@@ -1,7 +1,8 @@
 # Gestión del despacho
 
 Aplicación interna de gestión para un despacho de asesoría fiscal. Ver
-`REQUISITOS.md` para la especificación funcional completa.
+`REQUISITOS.md` para la especificación funcional completa y
+`SEGURIDAD.md` para seguridad, privacidad y copias de seguridad.
 
 ## Cómo arrancarla en local
 
@@ -46,9 +47,12 @@ Completado hasta la Fase 3:
 - **Trabajos y gastos**: alta/edición de trabajos con categoría y
   trabajadores asignados, gastos/suplidos por trabajo, y listado global
   filtrable por cliente/estado/trabajador.
+- **Requisitos no funcionales**: gestión de usuarios y roles (solo
+  administradores), exportación a CSV en cada listado (red de seguridad),
+  y copias de seguridad cifradas — ver `SEGURIDAD.md`.
 
 Pendiente (fuera del alcance original, anotado durante el desarrollo):
 "igualas" (clientes con cuota fija mensual), tareas recurrentes internas
 del despacho, y presupuestos a clientes. Tampoco se ha implementado
-todavía: exportación a Excel/CSV, ni los campos de Prevención de Blanqueo
-de Capitales (el modelo ya está preparado para añadirlos sin romper nada).
+todavía: los campos de Prevención de Blanqueo de Capitales (el modelo ya
+está preparado para añadirlos sin romper nada).

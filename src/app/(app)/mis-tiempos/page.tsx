@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { formatearDuracion, formatearEuros } from "@/lib/tiempo";
+import { EnlaceExportarCsv } from "@/components/EnlaceExportarCsv";
 
 const ETIQUETA_COBRO: Record<string, string> = {
   PENDIENTE: "Pendiente de facturar",
@@ -26,7 +27,18 @@ export default async function MisTiemposPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Mis tiempos</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-800">Mis tiempos</h1>
+        <div className="flex items-center gap-4">
+          <EnlaceExportarCsv href="/api/exportar/mis-tiempos" />
+          {usuario.rol === "ADMIN" && (
+            <EnlaceExportarCsv
+              href="/api/exportar/cargos"
+              texto="Exportar cargos de todo el despacho"
+            />
+          )}
+        </div>
+      </div>
 
       {corregido && (
         <div className="card border-green-300 bg-green-50">

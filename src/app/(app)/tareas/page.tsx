@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ListaTareas } from "@/components/ListaTareas";
+import { EnlaceExportarCsv } from "@/components/EnlaceExportarCsv";
 
 export default async function TareasPage({
   searchParams,
@@ -29,6 +30,8 @@ export default async function TareasPage({
           + Nueva tarea
         </Link>
       </div>
+
+      <EnlaceExportarCsv href="/api/exportar/tareas" />
 
       {creada && (
         <div className="card border-green-300 bg-green-50">

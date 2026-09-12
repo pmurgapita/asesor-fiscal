@@ -31,3 +31,12 @@ export async function requireUser() {
 
   return usuario;
 }
+
+/** Igual que requireUser(), pero además exige que el usuario sea administrador. */
+export async function requireAdmin() {
+  const usuario = await requireUser();
+  if (usuario.rol !== "ADMIN") {
+    redirect("/no-autorizado");
+  }
+  return usuario;
+}

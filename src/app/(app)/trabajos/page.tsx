@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ListaTrabajos } from "@/components/ListaTrabajos";
+import { EnlaceExportarCsv } from "@/components/EnlaceExportarCsv";
 
 export default async function TrabajosPage() {
   const [trabajos, clientes, trabajadores] = await Promise.all([
@@ -21,7 +22,10 @@ export default async function TrabajosPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Trabajos</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-800">Trabajos</h1>
+        <EnlaceExportarCsv href="/api/exportar/trabajos" />
+      </div>
 
       <ListaTrabajos
         trabajos={trabajos.map((t) => ({

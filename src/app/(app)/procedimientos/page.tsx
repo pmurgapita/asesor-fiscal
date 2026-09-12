@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ListaProcedimientos } from "@/components/ListaProcedimientos";
 import { urgenciaPlazo, diasHastaPlazo } from "@/lib/procedimientos";
+import { EnlaceExportarCsv } from "@/components/EnlaceExportarCsv";
 
 const PESO_URGENCIA: Record<string, number> = { vencido: 0, proximo: 1, normal: 2 };
 
@@ -48,6 +49,8 @@ export default async function ProcedimientosPage() {
           + Nuevo procedimiento
         </Link>
       </div>
+
+      <EnlaceExportarCsv href="/api/exportar/procedimientos" />
 
       <ListaProcedimientos procedimientos={conProximoPlazo} />
     </div>
