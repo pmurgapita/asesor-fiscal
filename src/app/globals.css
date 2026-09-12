@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f7f5;
+  --foreground: #1f2933;
+  --color-primary: #1d4ed8;
+  --color-primary-dark: #1e3a8a;
+  --color-success: #15803d;
+  --color-success-dark: #14532d;
+  --color-danger: #b91c1c;
+  --color-warning: #b45309;
+  --color-border: #d8dbe0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* La app se usa siempre en modo claro: para un despacho pequeño, un tema
+   fijo es más predecible que adaptarse al sistema operativo de cada equipo. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: 17px;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-lg font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    background-color: var(--color-primary);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+  }
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-lg font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    background-color: var(--color-success);
+  }
+  .btn-success:hover:not(:disabled) {
+    background-color: var(--color-success-dark);
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 bg-white px-6 py-4 text-lg font-semibold text-slate-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    border-color: var(--color-border);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-slate-50;
+  }
+
+  .card {
+    @apply rounded-2xl border bg-white p-6 shadow-sm;
+    border-color: var(--color-border);
+  }
+
+  .field-label {
+    @apply mb-1 block text-base font-medium text-slate-700;
+  }
+  .field-input {
+    @apply w-full rounded-lg border-2 px-4 py-3 text-lg;
+    border-color: var(--color-border);
+  }
+  .field-input:focus {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+}

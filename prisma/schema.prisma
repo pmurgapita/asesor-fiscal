@@ -1,0 +1,293 @@
+// Modelo de datos completo de la aplicación de gestión del despacho.
+// Pensado para poder añadir campos/tablas nuevas en el futuro (p.ej. LBC)
+// mediante migraciones, sin tener que rehacer las tablas existentes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Personas y acceso ----------
+
+enum Rol {
+  ADMIN
+  TRABAJADOR
+}
+
+model Usuario {
+  id                String   @id @default(cuid())
+  nombre            String
+  email             String   @unique
+  passwordHash      String
+  rol               Rol      @default(TRABAJADOR)
+  activo            Boolean  @default(true)
+  // Tarifa/hora por defecto de este trabajador. Un cliente puede tener una
+  // tarifa especial (Cliente.tarifaHoraEspecial) que sobreescribe esta.
+  tarifaHoraDefecto Decimal  @db.Decimal(10, 2)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  trabajosAsignados   TrabajoAsignacion[]
+  registrosTiempo     RegistroTiempo[]
+  tareasAsignadas     TareaPendiente[]
+  trabajosCreados     Trabajo[]           @relation("TrabajoCreadoPor")
+  gastosRegistrados   Gasto[]
+}
+
+// ---------- Clientes ----------
+
+enum EstadoCivil {
+  SOLTERO
+  CASADO
+  DIVORCIADO
+  VIUDO
+  PAREJA_DE_HECHO
+}
+
+model CategoriaCliente {
+  id      String    @id @default(cuid())
+  nombre  String    @unique
+  clientes Cliente[]
+}
+
+model Cliente {
+  id        String   @id @default(cuid())
+  nombre    String
+  dni       String?
+  direccion String?
+  telefono  String?
+  email     String?
+
+  estadoCivil          EstadoCivil?
+  regimenMatrimonial   String?
+
+  // Tarifa/hora especial de este cliente. Si está informada, sobreescribe
+  // la tarifa por defecto del trabajador para los trabajos de este cliente.
+  tarifaHoraEspecial   Decimal?     @db.Decimal(10, 2)
+
+  // Datos de facturación
+  razonSocialFacturacion    String?
+  cifFacturacion             String?
+  direccionFacturacion       String?
+
+  categoriaId String?
+  categoria   CategoriaCliente? @relation(fields: [categoriaId], references: [id])
+
+  notas  String?
+  activo Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  familiares    Familiar[]
+  empresas      Empresa[]
+  trabajos      Trabajo[]
+  tareas        TareaPendiente[]
+  procedimientos ProcedimientoTributario[]
+
+  // Campos reservados para una futura ficha de Prevención de Blanqueo de
+  // Capitales (LBC). No se usan todavía; se dejan aquí ya nulos para no
+  // tener que migrar la tabla cuando se implemente ese módulo.
+  lbcDatos Json?
+}
+
+enum TipoFamiliar {
+  CONYUGE
+  HIJO
+}
+
+model Familiar {
+  id               String       @id @default(cuid())
+  clienteId        String
+  cliente          Cliente      @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  tipo             TipoFamiliar
+  nombre           String
+  dni              String?
+  fechaNacimiento  DateTime?
+}
+
+model Empresa {
+  id        String  @id @default(cuid())
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  nombre    String
+  cif       String?
+  direccion String?
+  actividad String?
+  notas     String?
+}
+
+// ---------- Trabajos ----------
+
+enum EstadoTrabajo {
+  POR_COMENZAR
+  EN_CURSO
+  TERMINADO
+}
+
+model CategoriaTrabajo {
+  id       String    @id @default(cuid())
+  nombre   String    @unique
+  trabajos Trabajo[]
+}
+
+model Trabajo {
+  id          String        @id @default(cuid())
+  clienteId   String
+  cliente     Cliente       @relation(fields: [clienteId], references: [id])
+  categoriaId String?
+  categoria   CategoriaTrabajo? @relation(fields: [categoriaId], references: [id])
+
+  titulo      String
+  descripcion String?
+  estado      EstadoTrabajo @default(POR_COMENZAR)
+
+  fechaAlta DateTime  @default(now())
+  fechaFin  DateTime?
+
+  creadoPorId String
+  creadoPor   Usuario @relation("TrabajoCreadoPor", fields: [creadoPorId], references: [id])
+
+  asignaciones    TrabajoAsignacion[]
+  registrosTiempo RegistroTiempo[]
+  gastos          Gasto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Tabla intermedia: un trabajo puede tener varios trabajadores asignados
+// y un trabajador puede estar asignado a varios trabajos.
+model TrabajoAsignacion {
+  trabajoId  String
+  trabajo    Trabajo @relation(fields: [trabajoId], references: [id], onDelete: Cascade)
+  usuarioId  String
+  usuario    Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@id([trabajoId, usuarioId])
+}
+
+model Gasto {
+  id                 String   @id @default(cuid())
+  trabajoId          String
+  trabajo            Trabajo  @relation(fields: [trabajoId], references: [id], onDelete: Cascade)
+  concepto           String
+  importe            Decimal  @db.Decimal(10, 2)
+  repercutirACliente Boolean  @default(false)
+  fecha              DateTime @default(now())
+  creadoPorId        String
+  creadoPor          Usuario  @relation(fields: [creadoPorId], references: [id])
+}
+
+// ---------- Tiempo y facturación ----------
+
+enum EstadoCobro {
+  PENDIENTE
+  FACTURADO
+  COBRADO
+}
+
+enum OrigenRegistroTiempo {
+  CRONOMETRO
+  MANUAL
+}
+
+model RegistroTiempo {
+  id        String @id @default(cuid())
+  trabajoId String
+  trabajo   Trabajo @relation(fields: [trabajoId], references: [id])
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  fecha          DateTime
+  horaInicio     DateTime
+  horaFin        DateTime?
+  duracionMinutos Int?
+
+  // Tarifa e importe calculados y "congelados" en el momento de guardar,
+  // para que un cambio posterior de tarifa no altere registros ya cerrados.
+  tarifaAplicada Decimal @db.Decimal(10, 2)
+  importe        Decimal? @db.Decimal(10, 2)
+
+  nota String?
+
+  estadoCobro EstadoCobro          @default(PENDIENTE)
+  origen      OrigenRegistroTiempo @default(CRONOMETRO)
+
+  editadoManualmente Boolean @default(false)
+  motivoEdicion      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([trabajoId])
+  @@index([usuarioId])
+  @@index([estadoCobro])
+}
+
+// ---------- Tareas pendientes ----------
+
+enum Urgencia {
+  BAJA
+  MEDIA
+  ALTA
+}
+
+enum EstadoTarea {
+  PENDIENTE
+  EN_CURSO
+  HECHA
+}
+
+model TareaPendiente {
+  id          String   @id @default(cuid())
+  descripcion String
+  clienteId   String?
+  cliente     Cliente? @relation(fields: [clienteId], references: [id])
+  usuarioAsignadoId String
+  usuarioAsignado   Usuario @relation(fields: [usuarioAsignadoId], references: [id])
+
+  urgencia    Urgencia    @default(MEDIA)
+  fechaLimite DateTime?
+  estado      EstadoTarea @default(PENDIENTE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- Procedimientos tributarios ----------
+
+enum EstadoProcedimiento {
+  ABIERTO
+  CERRADO
+}
+
+model ProcedimientoTributario {
+  id                String  @id @default(cuid())
+  clienteId         String
+  cliente           Cliente @relation(fields: [clienteId], references: [id])
+  tipoProcedimiento String
+  organismo         String
+  estado            EstadoProcedimiento @default(ABIERTO)
+  notas             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plazos ProcedimientoPlazo[]
+}
+
+// Un procedimiento puede tener varios plazos/hitos a lo largo de los años.
+model ProcedimientoPlazo {
+  id               String                  @id @default(cuid())
+  procedimientoId  String
+  procedimiento    ProcedimientoTributario @relation(fields: [procedimientoId], references: [id], onDelete: Cascade)
+  descripcion      String
+  fechaLimite      DateTime
+  avisoDiasAntes   Int                     @default(15)
+  cumplido         Boolean                 @default(false)
+}
